@@ -1,4 +1,6 @@
-nooba-plugin-bgsubtractor
-=====================
 
-bgsubtractor plugin for the current Nooba plugin API
+nooba-plugin-bgsubstractor
+==========================
+
+Nooba plugin for background substraction
+
