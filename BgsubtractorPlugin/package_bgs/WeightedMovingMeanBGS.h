@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <opencv\cv.h>
-#include <opencv\highgui.h>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 #include "IBGS.h"
 

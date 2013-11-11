@@ -3,10 +3,10 @@
 
 #include "bgsubtractorplugin_global.h"
 #include "noobapluginapi.h"
-
+#include <opencv/cv.h>
 #include <QObject>
 
-#include "package_bgs/StaticFrameDifferenceBGS.h"
+class IBGS;
 
 class BGSUBTRACTORPLUGIN_EXPORT BgsubtractorPlugin: public NoobaPluginAPI
 {
@@ -38,10 +38,20 @@ public slots:
 //    void onMultiValParamChanged(const QString& varName, const QString& val);
 
     void inputData(const PluginPassData& data);
-
+    void onMultiValParamChanged(const QString &varName, const QString &val);
 private:
-    StaticFrameDifferenceBGS bgs;
-    cv::Mat img_mask;
+
+    void setActiveBGS(const QString bgsName);
+    inline void process(const cv::Mat &in, cv::Mat& out);
+    IBGS                *bgs;
+    const QString       BGSMethod_Param;
+    const QString       StaticFrameDiff_BGS;
+    const QString       MixtureOfGaussian_BGS;
+    const QString       WeightedMovingMean_BGS;
+    cv::Mat             img_mask;
+    QString             activeBGSName;
+
+
 
 };
 

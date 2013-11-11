@@ -1,32 +1,53 @@
 #include "bgsubtractorplugin.h"
 #include <QtCore>
-#include <opencv2/core/core.hpp>
 #include <QtGui/QImage>
 
-BgsubtractorPlugin::BgsubtractorPlugin()
-{
+#include <opencv2/core/core.hpp>
 
+#include "package_bgs/StaticFrameDifferenceBGS.h"
+#include "package_bgs/MixtureOfGaussianV2BGS.h"
+#include "package_bgs/WeightedMovingMeanBGS.h"
+
+BgsubtractorPlugin::BgsubtractorPlugin():
+    BGSMethod_Param(tr("Method Used")),
+    StaticFrameDiff_BGS("sfd"),
+    MixtureOfGaussian_BGS("mog"),
+    WeightedMovingMean_BGS("wmm"),
+    activeBGSName(StaticFrameDiff_BGS)
+{
+    bgs = new StaticFrameDifferenceBGS();
 }
 
 BgsubtractorPlugin::~BgsubtractorPlugin()
 {
-
+    release();
 }
 
 bool BgsubtractorPlugin::procFrame( const cv::Mat &in, cv::Mat &out, ProcParams &params )
 {
+    Q_UNUSED(params)
 
-
+    cv::cvtColor(in, in, CV_RGB2BGR);
+    process(in, img_mask);
+    out = img_mask;
+    cv::cvtColor(in, in, CV_BGR2RGB);
     return true;
 }
 
 bool BgsubtractorPlugin::init()
 {
+    setActiveBGS(activeBGSName);
+    createMultiValParam(BGSMethod_Param, QStringList() << StaticFrameDiff_BGS
+                        << WeightedMovingMean_BGS << MixtureOfGaussian_BGS);
     return true;
 }
 
 bool BgsubtractorPlugin::release()
 {
+    img_mask.release();
+    delete bgs;
+    bgs = NULL;
+    activeBGSName.clear();
     return true;
 }
 
@@ -47,25 +68,64 @@ void BgsubtractorPlugin::inputData(const PluginPassData& data){
     QImage temp = data.getImage();
 
     cv::Mat in(temp.height(),temp.width(),CV_8UC3,(uchar*)temp.bits(),temp.bytesPerLine());
-    cv::cvtColor(in, in,CV_BGR2RGB); // make convert colort to BGR !
+    cv::cvtColor(in, in,CV_RGB2BGR); // make convert colort to BGR !
 
-    img_mask = in.clone();
-    // bgs->process(...) method internally shows the foreground mask image
-    bgs.process(in, img_mask);
-    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(2,2));
-    cv::dilate(img_mask,img_mask, element,cv::Point(-1,-1),1);
-    cv::erode(img_mask,img_mask, element,cv::Point(-1,-1),2);
+    process(in, img_mask);
 
     if (img_mask.channels()== 1){
-        QImage img((uchar*)img_mask.data, img_mask.cols, img_mask.rows, img_mask.step1(), QImage::Format_RGB32);
-        eventData.setImage(img);
-        outputData(eventData);
-    }
-    else{
         QImage img((uchar*)img_mask.data, img_mask.cols, img_mask.rows, img_mask.step1(), QImage::Format_Indexed8);
         eventData.setImage(img);
-        outputData(eventData);
     }
+    else{
+        QImage img((uchar*)img_mask.data, img_mask.cols, img_mask.rows, img_mask.step1(), QImage::Format_RGB888);
+        eventData.setImage(img);
+    }
+    emit outputData(eventData);
+}
+
+void BgsubtractorPlugin::onMultiValParamChanged(const QString &varName, const QString &val)
+{
+    if(varName.compare(BGSMethod_Param) == 0)
+    {
+        setActiveBGS(val);
+    }
+}
+
+void BgsubtractorPlugin::setActiveBGS(const QString bgsName)
+{
+    if(bgsName.compare(activeBGSName) == 0)
+        return;
+
+    delete bgs;
+    bgs = NULL;
+    img_mask = cv::Mat();
+
+    if(bgsName.compare(StaticFrameDiff_BGS) == 0)
+    {
+        bgs = new StaticFrameDifferenceBGS();
+    }
+    else if(bgsName.compare(MixtureOfGaussian_BGS) == 0)
+    {
+        debugMsg(tr("%1 Not implemented").arg(bgsName));
+        //bgs = new MixtureOfGaussianV2BGS();
+    }
+    else if(bgsName.compare(WeightedMovingMean_BGS) == 0)
+    {
+        debugMsg(tr("%1 Not implemented").arg(bgsName));
+        //bgs = new WeightedMovingMeanBGS();
+    }
+    //activeBGSName = bgsName;
+}
+
+void BgsubtractorPlugin::process(const cv::Mat &in, cv::Mat& out)
+{
+    if(!bgs)
+        return;
+
+    bgs->process(in, out);
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(2,2));
+    cv::dilate(out,out, element,cv::Point(-1,-1),1);
+    cv::erode(out,out, element,cv::Point(-1,-1),2);
 }
 
 

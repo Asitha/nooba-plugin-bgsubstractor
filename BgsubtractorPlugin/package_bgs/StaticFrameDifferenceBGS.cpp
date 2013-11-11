@@ -10,6 +10,7 @@ StaticFrameDifferenceBGS::~StaticFrameDifferenceBGS()
   std::cout << "~StaticFrameDifferenceBGS()" << std::endl;
 }
 
+
 void StaticFrameDifferenceBGS::process(const cv::Mat &img_input, cv::Mat &img_output)
 {
   if(img_input.empty())

@@ -18,10 +18,13 @@ DEFINES += BGSUBTRACTORPLUGIN_LIB
 
 # Input
 HEADERS += bgsubtractorplugin.h bgsubtractorplugin_global.h \
+    package_bgs/IBGS.h \
     package_bgs/StaticFrameDifferenceBGS.h \
+    package_bgs/WeightedMovingMeanBGS.h \
     package_bgs/MixtureOfGaussianV2BGS.h
 SOURCES += bgsubtractorplugin.cpp \
     package_bgs/StaticFrameDifferenceBGS.cpp \
+    package_bgs/WeightedMovingMeanBGS.cpp \
     package_bgs/MixtureOfGaussianV2BGS.cpp
 
 CONFIG(debug, debug|release): DESTDIR = $$PWD/../../../NoobaVSS_build/NoobaFE/Debug/plugins/
