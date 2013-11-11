@@ -1,4 +1,4 @@
-nooba-plugin-template
+nooba-plugin-bgsubtractor
 =====================
 
-template plugin for the current Nooba plugin API
+bgsubtractor plugin for the current Nooba plugin API
