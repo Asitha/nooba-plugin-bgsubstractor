@@ -41,7 +41,7 @@ public slots:
     void onMultiValParamChanged(const QString &varName, const QString &val);
 private:
 
-    void setActiveBGS(const QString bgsName);
+    void setActiveBGS(const QString &bgsName);
     inline void process(const cv::Mat &in, cv::Mat& out);
     IBGS                *bgs;
     const QString       BGSMethod_Param;

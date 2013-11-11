@@ -47,7 +47,6 @@ bool BgsubtractorPlugin::release()
     img_mask.release();
     delete bgs;
     bgs = NULL;
-    activeBGSName.clear();
     return true;
 }
 
@@ -56,9 +55,9 @@ PluginInfo BgsubtractorPlugin::getPluginInfo() const
     PluginInfo pluginInfo(
         "Background Subtractor Plugin",
         0,
-        1,
+        2,
         "This provides an interface for BGS library PluginPassData will contain an image",
-        "Chathuranga Hettiarachchi");
+        "Chathuranga Hettiarachchi, Asitha Nanayakkara");
     return pluginInfo;
 }
 
@@ -91,10 +90,10 @@ void BgsubtractorPlugin::onMultiValParamChanged(const QString &varName, const QS
     }
 }
 
-void BgsubtractorPlugin::setActiveBGS(const QString bgsName)
+void BgsubtractorPlugin::setActiveBGS(const QString& bgsName)
 {
-    if(bgsName.compare(activeBGSName) == 0)
-        return;
+//    if(bgsName.compare(activeBGSName) == 0)
+//        return;
 
     delete bgs;
     bgs = NULL;
