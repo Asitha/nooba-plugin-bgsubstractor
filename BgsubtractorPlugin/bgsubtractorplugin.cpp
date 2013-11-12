@@ -34,7 +34,7 @@ bool BgsubtractorPlugin::procFrame( const cv::Mat &in, cv::Mat &out, ProcParams 
     cv::cvtColor(in, in, CV_BGR2RGB);
 
     eventData.setImage(convertToQImage(out));
-    emit eventData;
+    emit outputData(eventData);
 
     return true;
 }
