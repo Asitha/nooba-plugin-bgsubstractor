@@ -27,10 +27,15 @@ bool BgsubtractorPlugin::procFrame( const cv::Mat &in, cv::Mat &out, ProcParams 
 {
     Q_UNUSED(params)
 
+    PluginPassData eventData;
     cv::cvtColor(in, in, CV_RGB2BGR);
     process(in, img_mask);
     out = img_mask;
     cv::cvtColor(in, in, CV_BGR2RGB);
+
+    eventData.setImage(convertToQImage(out));
+    emit eventData;
+
     return true;
 }
 
@@ -114,6 +119,12 @@ void BgsubtractorPlugin::setActiveBGS(const QString& bgsName)
         //bgs = new WeightedMovingMeanBGS();
     }
     //activeBGSName = bgsName;
+}
+
+QImage BgsubtractorPlugin::convertToQImage(cv::Mat &cvImg)
+{
+    return QImage((const unsigned char*)(cvImg.data),
+                cvImg.cols,cvImg.rows,cvImg.step,  QImage::Format_RGB888);
 }
 
 void BgsubtractorPlugin::process(const cv::Mat &in, cv::Mat& out)

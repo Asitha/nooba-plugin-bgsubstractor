@@ -42,6 +42,12 @@ public slots:
 private:
 
     void setActiveBGS(const QString &bgsName);
+    /*
+     \brief get a color QImage from cv::Mat
+     \return QImage with three color channels
+     */
+    inline QImage convertToQImage(cv::Mat &cvImg);
+
     inline void process(const cv::Mat &in, cv::Mat& out);
     IBGS                *bgs;
     const QString       BGSMethod_Param;
