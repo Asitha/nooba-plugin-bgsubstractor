@@ -9,9 +9,9 @@
 #include "package_bgs/WeightedMovingMeanBGS.h"
 
 BgsubtractorPlugin::BgsubtractorPlugin():
-    BGSMethod_Param(tr("Method Used")),
-    StaticFrameDiff_BGS("sfd"),
-    MixtureOfGaussian_BGS("mog"),
+    BGSMethod_Param(tr("Background Subtractor")),
+    StaticFrameDiff_BGS("Static Frame Difference"),
+    MixtureOfGaussian_BGS("Mixture of GaussianV2"),
     WeightedMovingMean_BGS("wmm"),
     activeBGSName(StaticFrameDiff_BGS)
 {
@@ -110,8 +110,8 @@ void BgsubtractorPlugin::setActiveBGS(const QString& bgsName)
     }
     else if(bgsName.compare(MixtureOfGaussian_BGS) == 0)
     {
-        debugMsg(tr("%1 Not implemented").arg(bgsName));
-        //bgs = new MixtureOfGaussianV2BGS();
+        //debugMsg(tr("%1 Not implemented").arg(bgsName));
+        bgs = new MixtureOfGaussianV2BGS();
     }
     else if(bgsName.compare(WeightedMovingMean_BGS) == 0)
     {
