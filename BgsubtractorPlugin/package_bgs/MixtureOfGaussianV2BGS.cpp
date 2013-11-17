@@ -42,9 +42,6 @@ void MixtureOfGaussianV2BGS::process(const cv::Mat &img_input, cv::Mat &img_outp
   if(enableThreshold)
     cv::threshold(img_foreground, img_foreground, threshold, 255, cv::THRESH_BINARY);
 
-  if(showOutput)
-    cv::imshow("Gaussian Mixture Model (Zivkovic&Heijden)", img_foreground);
-
   img_foreground.copyTo(img_output);
 
   firstTime = false;
@@ -62,14 +59,14 @@ void MixtureOfGaussianV2BGS::saveConfig()
     }
     dir.cd("config");
 
-  CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("MixtureOfGaussianV2BGS.xml").toLocal8Bit(), 0, CV_STORAGE_WRITE);
+    CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("MixtureOfGaussianV2BGS.xml").toLocal8Bit(), 0, CV_STORAGE_WRITE);
 
-  cvWriteReal(fs, "alpha", alpha);
-  cvWriteInt(fs, "enableThreshold", enableThreshold);
-  cvWriteInt(fs, "threshold", threshold);
-  cvWriteInt(fs, "showOutput", showOutput);
+    cvWriteReal(fs, "alpha", alpha);
+    cvWriteInt(fs, "enableThreshold", enableThreshold);
+    cvWriteInt(fs, "threshold", threshold);
+    cvWriteInt(fs, "showOutput", showOutput);
 
-  cvReleaseFileStorage(&fs);
+    cvReleaseFileStorage(&fs);
 }
 
 void MixtureOfGaussianV2BGS::loadConfig()
@@ -85,10 +82,10 @@ void MixtureOfGaussianV2BGS::loadConfig()
     dir.cd("config");
     CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("MixtureOfGaussianV2BGS.xml").toLocal8Bit(), 0, CV_STORAGE_READ);
 
-  alpha = cvReadRealByName(fs, 0, "alpha", 0.05);
-  enableThreshold = cvReadIntByName(fs, 0, "enableThreshold", true);
-  threshold = cvReadIntByName(fs, 0, "threshold", 15);
-  showOutput = cvReadIntByName(fs, 0, "showOutput", true);
+    alpha = cvReadRealByName(fs, 0, "alpha", 0.05);
+    enableThreshold = cvReadIntByName(fs, 0, "enableThreshold", true);
+    threshold = cvReadIntByName(fs, 0, "threshold", 15);
+    showOutput = cvReadIntByName(fs, 0, "showOutput", true);
 
-  cvReleaseFileStorage(&fs);
+    cvReleaseFileStorage(&fs);
 }

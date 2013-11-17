@@ -7,12 +7,15 @@
 #include "package_bgs/StaticFrameDifferenceBGS.h"
 #include "package_bgs/MixtureOfGaussianV2BGS.h"
 #include "package_bgs/WeightedMovingMeanBGS.h"
+#include "package_bgs/AdaptiveBackgroundLearning.h"
+
 
 BgsubtractorPlugin::BgsubtractorPlugin():
     BGSMethod_Param(tr("Background Subtractor")),
     StaticFrameDiff_BGS("Static Frame Difference"),
     MixtureOfGaussian_BGS("Mixture of GaussianV2"),
-    WeightedMovingMean_BGS("wmm"),
+    WeightedMovingMean_BGS("WeightedMovingMean"),
+    AdaptiveBackgroundLearning_BGS("AdaptiveBackgroundLearning"),
     activeBGSName(StaticFrameDiff_BGS)
 {
     bgs = new StaticFrameDifferenceBGS();
@@ -42,8 +45,14 @@ bool BgsubtractorPlugin::procFrame( const cv::Mat &in, cv::Mat &out, ProcParams 
 bool BgsubtractorPlugin::init()
 {
     setActiveBGS(activeBGSName);
-    createMultiValParam(BGSMethod_Param, QStringList() << StaticFrameDiff_BGS
-                        << WeightedMovingMean_BGS << MixtureOfGaussian_BGS);
+    createMultiValParam(BGSMethod_Param, QStringList()
+                        << StaticFrameDiff_BGS
+                        << WeightedMovingMean_BGS
+                        << MixtureOfGaussian_BGS
+                        << AdaptiveBackgroundLearning_BGS
+                        );
+
+    createFrameViewer("BG Mask");
     return true;
 }
 
@@ -72,18 +81,22 @@ void BgsubtractorPlugin::inputData(const PluginPassData& data){
     QImage temp = data.getImage();
 
     cv::Mat in(temp.height(),temp.width(),CV_8UC3,(uchar*)temp.bits(),temp.bytesPerLine());
-    cv::cvtColor(in, in,CV_RGB2BGR); // make convert colort to BGR !
+    //cv::cvtColor(in, in,CV_RGB2BGR); // make convert colort to BGR !
 
     process(in, img_mask);
-
+    //cv::cvtColor(in, img_mask,CV_BGR2GRAY);
+    //in.copyTo(img_mask);
     if (img_mask.channels()== 1){
         QImage img((uchar*)img_mask.data, img_mask.cols, img_mask.rows, img_mask.step1(), QImage::Format_Indexed8);
         eventData.setImage(img);
+        updateFrameViewer("BG Mask",img);
     }
     else{
         QImage img((uchar*)img_mask.data, img_mask.cols, img_mask.rows, img_mask.step1(), QImage::Format_RGB888);
         eventData.setImage(img);
+        updateFrameViewer("BG Mask",img);
     }
+
     emit outputData(eventData);
 }
 
@@ -110,13 +123,15 @@ void BgsubtractorPlugin::setActiveBGS(const QString& bgsName)
     }
     else if(bgsName.compare(MixtureOfGaussian_BGS) == 0)
     {
-        //debugMsg(tr("%1 Not implemented").arg(bgsName));
         bgs = new MixtureOfGaussianV2BGS();
     }
     else if(bgsName.compare(WeightedMovingMean_BGS) == 0)
     {
-        debugMsg(tr("%1 Not implemented").arg(bgsName));
-        //bgs = new WeightedMovingMeanBGS();
+        bgs = new WeightedMovingMeanBGS();
+    }
+    else if(bgsName.compare(AdaptiveBackgroundLearning_BGS) == 0)
+    {
+        bgs = new AdaptiveBackgroundLearning();
     }
     //activeBGSName = bgsName;
 }

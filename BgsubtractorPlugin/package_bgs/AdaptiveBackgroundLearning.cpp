@@ -67,28 +67,47 @@ void AdaptiveBackgroundLearning::process(const cv::Mat &img_input, cv::Mat &img_
 
 void AdaptiveBackgroundLearning::saveConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/AdaptiveBackgroundLearning.xml", 0, CV_STORAGE_WRITE);
+    QDir dir(QDir::home());
+    if(!dir.exists("NoobaVSS")){
+        dir.mkdir("NoobaVSS");
+    }
+    dir.cd("NoobaVSS");
+    if(!dir.exists("config")){
+        dir.mkdir("config");
+    }
+    dir.cd("config");
+    CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("AdaptiveBackgroundLearning.xml").toLocal8Bit(), 0, CV_STORAGE_WRITE);
 
-  cvWriteReal(fs, "alpha", alpha);
-  cvWriteInt(fs, "limit", limit);
-  cvWriteInt(fs, "enableThreshold", enableThreshold);
-  cvWriteInt(fs, "threshold", threshold);
-  cvWriteInt(fs, "showForeground", showForeground);
-  cvWriteInt(fs, "showBackground", showBackground);
+    cvWriteReal(fs, "alpha", alpha);
+    cvWriteInt(fs, "limit", limit);
+    cvWriteInt(fs, "enableThreshold", enableThreshold);
+    cvWriteInt(fs, "threshold", threshold);
+    cvWriteInt(fs, "showForeground", showForeground);
+    cvWriteInt(fs, "showBackground", showBackground);
 
-  cvReleaseFileStorage(&fs);
+    cvReleaseFileStorage(&fs);
 }
 
 void AdaptiveBackgroundLearning::loadConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/AdaptiveBackgroundLearning.xml", 0, CV_STORAGE_READ);
-  
-  alpha = cvReadRealByName(fs, 0, "alpha", 0.05);
-  limit = cvReadIntByName(fs, 0, "limit", -1);
-  enableThreshold = cvReadIntByName(fs, 0, "enableThreshold", true);
-  threshold = cvReadIntByName(fs, 0, "threshold", 15);
-  showForeground = cvReadIntByName(fs, 0, "showForeground", true);
-  showBackground = cvReadIntByName(fs, 0, "showBackground", true);
+    QDir dir(QDir::home());
+    if(!dir.exists("NoobaVSS")){
+        dir.mkdir("NoobaVSS");
+    }
+    dir.cd("NoobaVSS");
+    if(!dir.exists("config")){
+        dir.mkdir("config");
+    }
+    dir.cd("config");
 
-  cvReleaseFileStorage(&fs);
+    CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("AdaptiveBackgroundLearning.xml").toLocal8Bit(), 0, CV_STORAGE_READ);
+
+    alpha = cvReadRealByName(fs, 0, "alpha", 0.05);
+    limit = cvReadIntByName(fs, 0, "limit", -1);
+    enableThreshold = cvReadIntByName(fs, 0, "enableThreshold", true);
+    threshold = cvReadIntByName(fs, 0, "threshold", 15);
+    showForeground = cvReadIntByName(fs, 0, "showForeground", true);
+    showBackground = cvReadIntByName(fs, 0, "showBackground", true);
+
+    cvReleaseFileStorage(&fs);
 }

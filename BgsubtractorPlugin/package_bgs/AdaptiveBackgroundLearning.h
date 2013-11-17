@@ -5,6 +5,7 @@
 #include <highgui.h>
 
 #include "IBGS.h"
+#include "QDir"
 
 class AdaptiveBackgroundLearning : public IBGS
 {

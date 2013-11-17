@@ -54,6 +54,7 @@ private:
     const QString       StaticFrameDiff_BGS;
     const QString       MixtureOfGaussian_BGS;
     const QString       WeightedMovingMean_BGS;
+    const QString       AdaptiveBackgroundLearning_BGS;
     cv::Mat             img_mask;
     QString             activeBGSName;
 
