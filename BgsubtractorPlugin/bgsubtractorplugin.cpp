@@ -16,9 +16,13 @@ BgsubtractorPlugin::BgsubtractorPlugin():
     MixtureOfGaussian_BGS("Mixture of GaussianV2"),
     WeightedMovingMean_BGS("WeightedMovingMean"),
     AdaptiveBackgroundLearning_BGS("AdaptiveBackgroundLearning"),
-    activeBGSName(StaticFrameDiff_BGS)
+    activeBGSName(StaticFrameDiff_BGS),
+    dilation_rounds(1),
+    erosion_rounds(2),
+    threshold(15)
 {
     bgs = new StaticFrameDifferenceBGS();
+    threshold = bgs->getThreshold();
 }
 
 BgsubtractorPlugin::~BgsubtractorPlugin()
@@ -29,16 +33,21 @@ BgsubtractorPlugin::~BgsubtractorPlugin()
 bool BgsubtractorPlugin::procFrame( const cv::Mat &in, cv::Mat &out, ProcParams &params )
 {
     Q_UNUSED(params)
+    cv::Mat input;
+    cv::Mat output;
+    in.copyTo(input);
 
-    PluginPassData eventData;
-    cv::cvtColor(in, in, CV_RGB2BGR);
+    //cv::cvtColor(in, in, CV_RGB2BGR);
     process(in, img_mask);
     out = img_mask;
-    cv::cvtColor(in, in, CV_BGR2RGB);
+    img_mask.copyTo(output);
+    //cv::cvtColor(in, in, CV_BGR2RGB);
+    QList<QImage> images;
+    QStringList strings;
 
-    eventData.setImage(convertToQImage(out));
-    emit outputData(eventData);
-
+    images.append(convertToQImage(input));
+    images.append(convertToQImage(output));
+    emit outputData(strings,images);
     return true;
 }
 
@@ -51,6 +60,10 @@ bool BgsubtractorPlugin::init()
                         << MixtureOfGaussian_BGS
                         << AdaptiveBackgroundLearning_BGS
                         );
+
+    createIntParam("dilation_rounds",1,10,0);
+    createIntParam("erosion_rounds",1,10,0);
+    createIntParam("threshold",bgs->getThreshold(),255,0);
 
     createFrameViewer("BG Mask");
     return true;
@@ -133,13 +146,20 @@ void BgsubtractorPlugin::setActiveBGS(const QString& bgsName)
     {
         bgs = new AdaptiveBackgroundLearning();
     }
+    bgs->setThreshold(threshold);
     //activeBGSName = bgsName;
 }
 
-QImage BgsubtractorPlugin::convertToQImage(cv::Mat &cvImg)
+QImage BgsubtractorPlugin::convertToQImage(const cv::Mat &cvImg)
 {
-    return QImage((const unsigned char*)(cvImg.data),
-                cvImg.cols,cvImg.rows,cvImg.step,  QImage::Format_RGB888);
+    if (cvImg.channels()== 1){
+        QImage img((uchar*)cvImg.data, cvImg.cols, cvImg.rows, cvImg.step1(), QImage::Format_Indexed8);
+        return img;
+    }
+    else{
+        QImage img((uchar*)cvImg.data, cvImg.cols, cvImg.rows, cvImg.step1(), QImage::Format_RGB888);
+        return img;
+    }
 }
 
 void BgsubtractorPlugin::process(const cv::Mat &in, cv::Mat& out)
@@ -149,8 +169,29 @@ void BgsubtractorPlugin::process(const cv::Mat &in, cv::Mat& out)
 
     bgs->process(in, out);
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(2,2));
-    cv::dilate(out,out, element,cv::Point(-1,-1),1);
-    cv::erode(out,out, element,cv::Point(-1,-1),2);
+    cv::dilate(out,out, element,cv::Point(-1,-1),dilation_rounds);
+    cv::erode(out,out, element,cv::Point(-1,-1),erosion_rounds);
+}
+
+void BgsubtractorPlugin::onIntParamChanged(const QString& varName, int val)
+{
+    if(varName == "dilation_rounds"){
+
+        dilation_rounds = val;
+
+        debugMsg("dilation_rounds set to "  + QString("%1").arg(val));
+    }
+    else if(varName == "erosion_rounds"){
+
+        erosion_rounds = val;
+        debugMsg("erosion_rounds set to "  + QString("%1").arg(val));
+    }
+    else if(varName == "threshold"){
+
+        threshold = val;
+        bgs->setThreshold(val);
+        debugMsg("threshold set to "  + QString("%1").arg(val));
+    }
 }
 
 

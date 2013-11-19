@@ -28,7 +28,8 @@ public:
    * @param img_output
    */
   void process(const cv::Mat &img_input, cv::Mat &img_output);
-
+  inline void setThreshold(int t){threshold = t;}
+  inline int getThreshold(){return threshold;}
 private:
   void saveConfig();
   void loadConfig();

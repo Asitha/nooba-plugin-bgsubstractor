@@ -32,7 +32,7 @@ public slots:
      * These functions will be called when the parameters are changed by the
      * user.
      */
-//    void onIntParamChanged(const QString& varName, int val);
+    void onIntParamChanged(const QString& varName, int val);
 //    void onDoubleParamChanged(const QString& varName, double val);
 //    void onStringParamChanged(const QString& varName, const QString& val);
 //    void onMultiValParamChanged(const QString& varName, const QString& val);
@@ -46,7 +46,7 @@ private:
      \brief get a color QImage from cv::Mat
      \return QImage with three color channels
      */
-    inline QImage convertToQImage(cv::Mat &cvImg);
+    inline QImage convertToQImage(const cv::Mat &cvImg);
 
     inline void process(const cv::Mat &in, cv::Mat& out);
     IBGS                *bgs;
@@ -57,8 +57,9 @@ private:
     const QString       AdaptiveBackgroundLearning_BGS;
     cv::Mat             img_mask;
     QString             activeBGSName;
-
-
+    int dilation_rounds;
+    int erosion_rounds;
+    int threshold;
 
 };
 
