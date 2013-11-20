@@ -1,6 +1,6 @@
 #include "bgsubtractorplugin.h"
 #include <QtCore>
-#include <QtGui/QImage>
+#include <QImage>
 
 #include <opencv2/core/core.hpp>
 
