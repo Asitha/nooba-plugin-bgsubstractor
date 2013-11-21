@@ -1,6 +1,8 @@
 #include "WeightedMovingMeanBGS.h"
 
-WeightedMovingMeanBGS::WeightedMovingMeanBGS() : firstTime(true), enableWeight(true), enableThreshold(true), threshold(15), showOutput(true), showBackground(false)
+WeightedMovingMeanBGS::WeightedMovingMeanBGS()
+    : firstTime(true), enableWeight(true), enableThreshold(true),
+      threshold(15), showOutput(true), showBackground(false)
 {
   std::cout << "WeightedMovingMeanBGS()" << std::endl;
 }

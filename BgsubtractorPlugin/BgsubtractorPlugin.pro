@@ -22,12 +22,20 @@ HEADERS += bgsubtractorplugin.h bgsubtractorplugin_global.h \
     package_bgs/StaticFrameDifferenceBGS.h \
     package_bgs/WeightedMovingMeanBGS.h \
     package_bgs/MixtureOfGaussianV2BGS.h \
-    package_bgs/AdaptiveBackgroundLearning.h
+    package_bgs/AdaptiveBackgroundLearning.h \
+    package_bgs/WeightedMovingVarianceBGS.h \
+    package_bgs/FrameDifferenceBGS.h \
+    package_bgs/MixtureOfGaussianV1BGS.h \
+    package_bgs/GMG.h
 SOURCES += bgsubtractorplugin.cpp \
     package_bgs/StaticFrameDifferenceBGS.cpp \
     package_bgs/WeightedMovingMeanBGS.cpp \
     package_bgs/MixtureOfGaussianV2BGS.cpp \
-    package_bgs/AdaptiveBackgroundLearning.cpp
+    package_bgs/AdaptiveBackgroundLearning.cpp \
+    package_bgs/WeightedMovingVarianceBGS.cpp \
+    package_bgs/FrameDifferenceBGS.cpp \
+    package_bgs/GMG.cpp \
+    package_bgs/MixtureOfGaussianV1BGS.cpp
 
 CONFIG(debug, debug|release): DESTDIR = $$PWD/../../../NoobaVSS_build/NoobaFE/Debug/plugins/
 CONFIG(release, debug|release): DESTDIR = $$PWD/../../../NoobaVSS_build/NoobaFE/Release/plugins/

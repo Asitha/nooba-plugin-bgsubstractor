@@ -1,7 +1,8 @@
 #include "WeightedMovingVarianceBGS.h"
 
-WeightedMovingVarianceBGS::WeightedMovingVarianceBGS() : firstTime(true), enableWeight(true), 
-  enableThreshold(true), threshold(15), showOutput(true)
+WeightedMovingVarianceBGS::WeightedMovingVarianceBGS()
+    : firstTime(true), enableWeight(true),
+  enableThreshold(true), threshold(15), showOutput(false)
 {
   std::cout << "WeightedMovingVarianceBGS()" << std::endl;
 }
@@ -16,6 +17,7 @@ void WeightedMovingVarianceBGS::process(const cv::Mat &img_input, cv::Mat &img_o
   if(img_input.empty())
     return;
 
+
   loadConfig();
 
   if(firstTime)
@@ -23,16 +25,25 @@ void WeightedMovingVarianceBGS::process(const cv::Mat &img_input, cv::Mat &img_o
 
   if(img_input_prev_1.empty())
   {
-    img_input.copyTo(img_input_prev_1);
+  // cv::cvtColor(img_input, img_input_prev_1, CV_BGR2GRAY);
+
+   img_input.copyTo(img_input_prev_1);
+   cv::cvtColor(img_input, img_output, CV_BGR2GRAY);
+   cv::threshold(img_output,img_output,threshold,255,cv::THRESH_BINARY);
     return;
   }
 
   if(img_input_prev_2.empty())
   {
-    img_input_prev_1.copyTo(img_input_prev_2);
+
+      img_input_prev_1.copyTo(img_input_prev_2);
     img_input.copyTo(img_input_prev_1);
+    cv::cvtColor(img_input, img_output, CV_BGR2GRAY);
+    cv::threshold(img_output,img_output,threshold,255,cv::THRESH_BINARY);
     return;
   }
+//  cv::Mat img_input_f;
+//  cv::cvtColor(img_input, img_input_f, CV_BGR2GRAY);
 
   cv::Mat img_input_f(img_input.size(), CV_32F);
   img_input.convertTo(img_input_f, CV_32F, 1./255.);
@@ -122,7 +133,17 @@ cv::Mat WeightedMovingVarianceBGS::computeWeightedVariance(const cv::Mat &img_in
 
 void WeightedMovingVarianceBGS::saveConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/WeightedMovingVarianceBGS.xml", 0, CV_STORAGE_WRITE);
+    QDir dir(QDir::home());
+    if(!dir.exists("NoobaVSS")){
+        dir.mkdir("NoobaVSS");
+    }
+    dir.cd("NoobaVSS");
+    if(!dir.exists("config")){
+        dir.mkdir("config");
+    }
+    dir.cd("config");
+
+  CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("WeightedMovingVarianceBGS.xml").toLocal8Bit(), 0, CV_STORAGE_WRITE);
 
   cvWriteInt(fs, "enableWeight", enableWeight);
   cvWriteInt(fs, "enableThreshold", enableThreshold);
@@ -134,12 +155,21 @@ void WeightedMovingVarianceBGS::saveConfig()
 
 void WeightedMovingVarianceBGS::loadConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/WeightedMovingVarianceBGS.xml", 0, CV_STORAGE_READ);
-  
+    QDir dir(QDir::home());
+    if(!dir.exists("NoobaVSS")){
+        dir.mkdir("NoobaVSS");
+    }
+    dir.cd("NoobaVSS");
+    if(!dir.exists("config")){
+        dir.mkdir("config");
+    }
+    dir.cd("config");
+    CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("WeightedMovingVarianceBGS.xml").toLocal8Bit(), 0, CV_STORAGE_READ);
+
   enableWeight = cvReadIntByName(fs, 0, "enableWeight", true);
   enableThreshold = cvReadIntByName(fs, 0, "enableThreshold", true);
   threshold = cvReadIntByName(fs, 0, "threshold", 15);
-  showOutput = cvReadIntByName(fs, 0, "showOutput", true);
+  showOutput = cvReadIntByName(fs, 0, "showOutput", false);
   
   cvReleaseFileStorage(&fs);
 }

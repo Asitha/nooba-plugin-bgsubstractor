@@ -1,6 +1,8 @@
 #include "GMG.h"
 
-GMG::GMG() : firstTime(true), initializationFrames(20), decisionThreshold(0.7), showOutput(true)
+GMG::GMG()
+    : firstTime(true), initializationFrames(20), decisionThreshold(0.7),
+      showOutput(false)
 {
   std::cout << "GMG()" << std::endl;
 
@@ -8,7 +10,7 @@ GMG::GMG() : firstTime(true), initializationFrames(20), decisionThreshold(0.7), 
   cv::setUseOptimized(true);
   cv::setNumThreads(8);
 
-  fgbg = cv::Algorithm::create<cv::BackgroundSubtractorGMG>("BackgroundSubtractor.GMG");
+  fgbg = cv::Algorithm::create<cv::BackgroundSubtractor>("BackgroundSubtractor.GMG");
 }
 
 GMG::~GMG()
@@ -63,11 +65,22 @@ void GMG::saveConfig()
 
 void GMG::loadConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/GMG.xml", 0, CV_STORAGE_READ);
-  
+    QDir dir(QDir::home());
+    if(!dir.exists("NoobaVSS")){
+        dir.mkdir("NoobaVSS");
+    }
+    dir.cd("NoobaVSS");
+    if(!dir.exists("config")){
+        dir.mkdir("config");
+    }
+    dir.cd("config");
+
+    CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("GMG.xml").toLocal8Bit(), 0, CV_STORAGE_WRITE);
+
+
   initializationFrames = cvReadIntByName(fs, 0, "initializationFrames", 20);
   decisionThreshold = cvReadRealByName(fs, 0, "decisionThreshold", 0.7);
-  showOutput = cvReadIntByName(fs, 0, "showOutput", true);
+  showOutput = cvReadIntByName(fs, 0, "showOutput", false);
   
   cvReleaseFileStorage(&fs);
 }

@@ -1,6 +1,7 @@
 #include "FrameDifferenceBGS.h"
 
-FrameDifferenceBGS::FrameDifferenceBGS() : firstTime(true), enableThreshold(true), threshold(15), showOutput(true)
+FrameDifferenceBGS::FrameDifferenceBGS()
+    : firstTime(true), enableThreshold(true), threshold(15), showOutput(false)
 {
   std::cout << "FrameDifferenceBGS()" << std::endl;
 }
@@ -23,6 +24,9 @@ void FrameDifferenceBGS::process(const cv::Mat &img_input, cv::Mat &img_output)
   if(img_input_prev.empty())
   {
     img_input.copyTo(img_input_prev);
+    cv::cvtColor(img_input, img_output, CV_BGR2GRAY);
+    cv::threshold(img_output,img_output,threshold,255,cv::THRESH_BINARY);
+
     return;
   }
 
@@ -46,7 +50,17 @@ void FrameDifferenceBGS::process(const cv::Mat &img_input, cv::Mat &img_output)
 
 void FrameDifferenceBGS::saveConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/FrameDifferenceBGS.xml", 0, CV_STORAGE_WRITE);
+    QDir dir(QDir::home());
+    if(!dir.exists("NoobaVSS")){
+        dir.mkdir("NoobaVSS");
+    }
+    dir.cd("NoobaVSS");
+    if(!dir.exists("config")){
+        dir.mkdir("config");
+    }
+    dir.cd("config");
+
+  CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("FrameDifferenceBGS.xml").toLocal8Bit(), 0, CV_STORAGE_WRITE);
 
   cvWriteInt(fs, "enableThreshold", enableThreshold);
   cvWriteInt(fs, "threshold", threshold);
@@ -57,11 +71,20 @@ void FrameDifferenceBGS::saveConfig()
 
 void FrameDifferenceBGS::loadConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/FrameDifferenceBGS.xml", 0, CV_STORAGE_READ);
-  
+    QDir dir(QDir::home());
+    if(!dir.exists("NoobaVSS")){
+        dir.mkdir("NoobaVSS");
+    }
+    dir.cd("NoobaVSS");
+    if(!dir.exists("config")){
+        dir.mkdir("config");
+    }
+    dir.cd("config");
+    CvFileStorage* fs = cvOpenFileStorage(dir.absoluteFilePath("FrameDifferenceBGS.xml").toLocal8Bit(), 0, CV_STORAGE_READ);
+
   enableThreshold = cvReadIntByName(fs, 0, "enableThreshold", true);
   threshold = cvReadIntByName(fs, 0, "threshold", 15);
-  showOutput = cvReadIntByName(fs, 0, "showOutput", true);
+  showOutput = cvReadIntByName(fs, 0, "showOutput", false);
 
   cvReleaseFileStorage(&fs);
 }

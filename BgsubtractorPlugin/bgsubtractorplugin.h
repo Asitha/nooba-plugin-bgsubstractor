@@ -52,9 +52,15 @@ private:
     IBGS                *bgs;
     const QString       BGSMethod_Param;
     const QString       StaticFrameDiff_BGS;
-    const QString       MixtureOfGaussian_BGS;
+    const QString       MixtureOfGaussianV1_BGS;
+    const QString       MixtureOfGaussianV2_BGS;
     const QString       WeightedMovingMean_BGS;
     const QString       AdaptiveBackgroundLearning_BGS;
+    const QString       WeightedMovingVariance_BGS;
+    const QString       FrameDifference_BGS;
+    const QString       GMG_BGS;
+
+
     cv::Mat             img_mask;
     QString             activeBGSName;
     int dilation_rounds;

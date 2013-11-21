@@ -5,7 +5,7 @@
 #include <highgui.h>
 
 #include "IBGS.h"
-
+#include "QDir"
 class WeightedMovingVarianceBGS : public IBGS
 {
 private:
@@ -25,7 +25,8 @@ public:
   cv::Mat computeWeightedVariance(const cv::Mat &img_input_f, const cv::Mat &img_mean_f, const double weight);
 
   void process(const cv::Mat &img_input, cv::Mat &img_output);
-
+  inline void setThreshold(int t){threshold = t;}
+  inline int getThreshold(){return threshold;}
 private:
   void saveConfig();
   void loadConfig();

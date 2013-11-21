@@ -15,6 +15,7 @@ void MixtureOfGaussianV2BGS::process(const cv::Mat &img_input, cv::Mat &img_outp
   if(img_input.empty())
     return;
 
+  cv::cvtColor(img_input, img_foreground, CV_BGR2GRAY);
   loadConfig();
 
   if(firstTime)
@@ -37,7 +38,7 @@ void MixtureOfGaussianV2BGS::process(const cv::Mat &img_input, cv::Mat &img_outp
   //    vol.26, no.5, pages 651-656, 2004.
   //------------------------------------------------------------------
 
-  mog(img_input, img_foreground, alpha);
+  mog(img_foreground, img_foreground, alpha);
 
   if(enableThreshold)
     cv::threshold(img_foreground, img_foreground, threshold, 255, cv::THRESH_BINARY);

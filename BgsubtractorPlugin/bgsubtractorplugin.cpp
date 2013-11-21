@@ -5,17 +5,26 @@
 #include <opencv2/core/core.hpp>
 
 #include "package_bgs/StaticFrameDifferenceBGS.h"
+#include "package_bgs/MixtureOfGaussianV1BGS.h"
 #include "package_bgs/MixtureOfGaussianV2BGS.h"
 #include "package_bgs/WeightedMovingMeanBGS.h"
 #include "package_bgs/AdaptiveBackgroundLearning.h"
+#include "package_bgs/WeightedMovingVarianceBGS.h"
+#include "package_bgs/FrameDifferenceBGS.h"
+#include "package_bgs/GMG.h"
+
 
 
 BgsubtractorPlugin::BgsubtractorPlugin():
     BGSMethod_Param(tr("Background Subtractor")),
     StaticFrameDiff_BGS("Static Frame Difference"),
-    MixtureOfGaussian_BGS("Mixture of GaussianV2"),
+    MixtureOfGaussianV1_BGS("Mixture of GaussianV1"),
+    MixtureOfGaussianV2_BGS("Mixture of GaussianV2"),
     WeightedMovingMean_BGS("WeightedMovingMean"),
     AdaptiveBackgroundLearning_BGS("AdaptiveBackgroundLearning"),
+    WeightedMovingVariance_BGS("WeightedMovingVariance"),
+    FrameDifference_BGS("FrameDifferenceBGS"),
+    GMG_BGS("GMGBGS"),
     activeBGSName(StaticFrameDiff_BGS),
     dilation_rounds(1),
     erosion_rounds(2),
@@ -53,17 +62,28 @@ bool BgsubtractorPlugin::procFrame( const cv::Mat &in, cv::Mat &out, ProcParams 
 
 bool BgsubtractorPlugin::init()
 {
+
+    QStringList enable_disable_list;
+
+    enable_disable_list.append("Enable");
+    enable_disable_list.append("Disable");
+
     setActiveBGS(activeBGSName);
     createMultiValParam(BGSMethod_Param, QStringList()
                         << StaticFrameDiff_BGS
                         << WeightedMovingMean_BGS
-                        << MixtureOfGaussian_BGS
+                        << MixtureOfGaussianV1_BGS
+                        << MixtureOfGaussianV2_BGS
                         << AdaptiveBackgroundLearning_BGS
+                        << WeightedMovingVariance_BGS
+                        << FrameDifference_BGS
+                    //    << GMG_BGS
                         );
 
     createIntParam("dilation_rounds",1,10,0);
     createIntParam("erosion_rounds",1,10,0);
     createIntParam("threshold",bgs->getThreshold(),255,0);
+    createMultiValParam("show_bg_mask",enable_disable_list);
 
     createFrameViewer("BG Mask");
     return true;
@@ -99,17 +119,8 @@ void BgsubtractorPlugin::inputData(const PluginPassData& data){
     process(in, img_mask);
     //cv::cvtColor(in, img_mask,CV_BGR2GRAY);
     //in.copyTo(img_mask);
-    if (img_mask.channels()== 1){
-        QImage img((uchar*)img_mask.data, img_mask.cols, img_mask.rows, img_mask.step1(), QImage::Format_Indexed8);
-        eventData.setImage(img);
-        updateFrameViewer("BG Mask",img);
-    }
-    else{
-        QImage img((uchar*)img_mask.data, img_mask.cols, img_mask.rows, img_mask.step1(), QImage::Format_RGB888);
-        eventData.setImage(img);
-        updateFrameViewer("BG Mask",img);
-    }
 
+    eventData.setImage(convertToQImage(img_mask));
     emit outputData(eventData);
 }
 
@@ -118,6 +129,15 @@ void BgsubtractorPlugin::onMultiValParamChanged(const QString &varName, const QS
     if(varName.compare(BGSMethod_Param) == 0)
     {
         setActiveBGS(val);
+    }
+    else if(varName == "show_bg_mask"){
+        if(val == "Enable"){
+            setFrameViewerVisibility("BG Mask",true);
+        }
+        else{
+            setFrameViewerVisibility("BG Mask",false);
+        }
+        debugMsg("show_blob_mask set to " + val);
     }
 }
 
@@ -134,7 +154,11 @@ void BgsubtractorPlugin::setActiveBGS(const QString& bgsName)
     {
         bgs = new StaticFrameDifferenceBGS();
     }
-    else if(bgsName.compare(MixtureOfGaussian_BGS) == 0)
+    else if(bgsName.compare(MixtureOfGaussianV1_BGS) == 0)
+    {
+        bgs = new MixtureOfGaussianV1BGS();
+    }
+    else if(bgsName.compare(MixtureOfGaussianV2_BGS) == 0)
     {
         bgs = new MixtureOfGaussianV2BGS();
     }
@@ -145,6 +169,18 @@ void BgsubtractorPlugin::setActiveBGS(const QString& bgsName)
     else if(bgsName.compare(AdaptiveBackgroundLearning_BGS) == 0)
     {
         bgs = new AdaptiveBackgroundLearning();
+    }
+    else if(bgsName.compare(WeightedMovingVariance_BGS) == 0)
+    {
+        bgs = new WeightedMovingVarianceBGS();
+    }
+    else if(bgsName.compare(FrameDifference_BGS) == 0)
+    {
+        bgs = new FrameDifferenceBGS();
+    }
+    else if(bgsName.compare(GMG_BGS) == 0)
+    {
+        bgs = new GMG();
     }
     bgs->setThreshold(threshold);
     //activeBGSName = bgsName;
@@ -171,6 +207,8 @@ void BgsubtractorPlugin::process(const cv::Mat &in, cv::Mat& out)
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(2,2));
     cv::dilate(out,out, element,cv::Point(-1,-1),dilation_rounds);
     cv::erode(out,out, element,cv::Point(-1,-1),erosion_rounds);
+
+    updateFrameViewer("BG Mask",convertToQImage(out));
 }
 
 void BgsubtractorPlugin::onIntParamChanged(const QString& varName, int val)
