@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <cv.h>
-#include <highgui.h>
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 #include "IBGS.h"
 #include "QDir"
