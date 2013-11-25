@@ -3,7 +3,7 @@
 
 #include "bgsubtractorplugin_global.h"
 #include "noobapluginapi.h"
-#include <cv.h>
+#include <opencv2/opencv.hpp>
 #include <QObject>
 
 class IBGS;
