@@ -71,7 +71,7 @@ bool BgsubtractorPlugin::init()
     setActiveBGS(activeBGSName);
     createMultiValParam(BGSMethod_Param, QStringList()
                         << StaticFrameDiff_BGS
-                        << WeightedMovingMean_BGS
+                   //     << WeightedMovingMean_BGS
                         << MixtureOfGaussianV1_BGS
                         << MixtureOfGaussianV2_BGS
                         << AdaptiveBackgroundLearning_BGS
@@ -80,8 +80,8 @@ bool BgsubtractorPlugin::init()
                     //    << GMG_BGS
                         );
 
-    createIntParam("dilation_rounds",1,10,0);
-    createIntParam("erosion_rounds",1,10,0);
+    createIntParam("dilation_rounds",3,10,0);
+    createIntParam("erosion_rounds",4,10,0);
     createIntParam("threshold",bgs->getThreshold(),255,0);
     createMultiValParam("show_bg_mask",enable_disable_list);
 
