@@ -26,9 +26,9 @@ BgsubtractorPlugin::BgsubtractorPlugin():
     FrameDifference_BGS("FrameDifferenceBGS"),
     GMG_BGS("GMGBGS"),
     activeBGSName(StaticFrameDiff_BGS),
-    dilation_rounds(1),
-    erosion_rounds(2),
-    threshold(15)
+    dilation_rounds(DEFAULT_DILATION_ROUNDS),
+    erosion_rounds(DEFAULT_EROSION_ROUNDS),
+    threshold(DEFAULT_THRESHOLD)
 {
     bgs = new StaticFrameDifferenceBGS();
     threshold = bgs->getThreshold();
@@ -80,9 +80,9 @@ bool BgsubtractorPlugin::init()
                     //    << GMG_BGS
                         );
 
-    createIntParam("dilation_rounds",3,10,0);
-    createIntParam("erosion_rounds",4,10,0);
-    createIntParam("threshold",bgs->getThreshold(),255,0);
+    createIntParam("dilation_rounds",DEFAULT_DILATION_ROUNDS,10,0);
+    createIntParam("erosion_rounds",DEFAULT_EROSION_ROUNDS,10,0);
+    createIntParam("threshold",bgs->getThreshold(),255,0);      //DEFAULT_THRESHOLD
     createMultiValParam("show_bg_mask",enable_disable_list);
 
     createFrameViewer("BG Mask");

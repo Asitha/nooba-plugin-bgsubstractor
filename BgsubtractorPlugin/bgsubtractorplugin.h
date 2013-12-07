@@ -6,6 +6,10 @@
 #include <opencv2/opencv.hpp>
 #include <QObject>
 
+#define DEFAULT_DILATION_ROUNDS 3
+#define DEFAULT_EROSION_ROUNDS 4
+#define DEFAULT_THRESHOLD 15
+
 class IBGS;
 
 class BGSUBTRACTORPLUGIN_EXPORT BgsubtractorPlugin: public NoobaPluginAPI
