@@ -10,6 +10,7 @@ Win32/*
 ipch/*
 
 *.user
+*pre1
 *.sdf
 *.opensdf
 *.suo
